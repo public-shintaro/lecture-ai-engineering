@@ -165,7 +165,7 @@ def test_model_reproducibility(sample_data, preprocessor):
     model2 = Pipeline(
         steps=[
             ("preprocessor", preprocessor),
-            ("classifier", RandomForestClassifier(n_estimators=100, random_state=42)),
+            ("classifier", RandomForestClassifier(n_estimators=60, random_state=30)),
         ]
     )
 
