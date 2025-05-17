@@ -190,15 +190,18 @@ def test_model_scaling(sample_data, preprocessor):
 
     X = doubled_data.drop("Survived", axis=1)
     y = doubled_data["Survived"].astype(int)
-    _, X_test, _, _ = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
 
-    # モデルパイプラインの作成
+    # モデルパイプラインの作成とフィッティング
     model = Pipeline(
         steps=[
             ("preprocessor", preprocessor),
             ("classifier", RandomForestClassifier(n_estimators=100, random_state=42)),
         ]
     )
+    model.fit(X_train, y_train)  # モデルをフィット
 
     # 通常のデータでの推論時間を計測
     start_time = time.time()
