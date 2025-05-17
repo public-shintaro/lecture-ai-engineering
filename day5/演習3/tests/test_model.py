@@ -180,3 +180,37 @@ def test_model_reproducibility(sample_data, preprocessor):
     assert np.array_equal(
         predictions1, predictions2
     ), "モデルの予測結果に再現性がありません"
+
+
+def test_model_scaling(sample_data, preprocessor):
+    logging.info("モデルのスケーリング性能を確認します")
+    """モデルのスケーリング性能を検証"""
+    # オリジナルデータの2倍のサイズのデータセットを作成
+    doubled_data = pd.concat([sample_data, sample_data], ignore_index=True)
+
+    X = doubled_data.drop("Survived", axis=1)
+    y = doubled_data["Survived"].astype(int)
+    _, X_test, _, _ = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # モデルパイプラインの作成
+    model = Pipeline(
+        steps=[
+            ("preprocessor", preprocessor),
+            ("classifier", RandomForestClassifier(n_estimators=100, random_state=42)),
+        ]
+    )
+
+    # 通常のデータでの推論時間を計測
+    start_time = time.time()
+    model.predict(X_test[: len(X_test) // 2])
+    normal_time = time.time() - start_time
+
+    # 2倍のデータでの推論時間を計測
+    start_time = time.time()
+    model.predict(X_test)
+    double_time = time.time() - start_time
+
+    # 2倍のデータサイズで推論時間が2倍以内であることを確認
+    assert (
+        double_time <= normal_time * 2
+    ), f"データサイズ2倍での推論時間が比例以上に増加しています: 通常{normal_time}秒, 2倍データ{double_time}秒"
