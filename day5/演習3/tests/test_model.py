@@ -1,16 +1,18 @@
+import logging
 import os
-import pytest
-import pandas as pd
-import numpy as np
 import pickle
 import time
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+import numpy as np
+import pandas as pd
+import pytest
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 # テスト用データとモデルパスを定義
 DATA_PATH = os.path.join(os.path.dirname(__file__), "../data/Titanic.csv")
@@ -20,6 +22,7 @@ MODEL_PATH = os.path.join(MODEL_DIR, "titanic_model.pkl")
 
 @pytest.fixture
 def sample_data():
+    logging.info("サンプルデータを読み込みます")
     """テスト用データセットを読み込む"""
     if not os.path.exists(DATA_PATH):
         from sklearn.datasets import fetch_openml
@@ -41,6 +44,7 @@ def sample_data():
 
 @pytest.fixture
 def preprocessor():
+    logging.info("前処理パイプラインを作成します")
     """前処理パイプラインを定義"""
     # 数値カラムと文字列カラムを定義
     numeric_features = ["Age", "Pclass", "SibSp", "Parch", "Fare"]
@@ -75,6 +79,7 @@ def preprocessor():
 
 @pytest.fixture
 def train_model(sample_data, preprocessor):
+    logging.info("モデルを学習します")
     """モデルの学習とテストデータの準備"""
     # データの分割とラベル変換
     X = sample_data.drop("Survived", axis=1)
@@ -103,6 +108,7 @@ def train_model(sample_data, preprocessor):
 
 
 def test_model_exists():
+    logging.info("モデルファイルの存在を確認します")
     """モデルファイルが存在するか確認"""
     if not os.path.exists(MODEL_PATH):
         pytest.skip("モデルファイルが存在しないためスキップします")
@@ -110,6 +116,7 @@ def test_model_exists():
 
 
 def test_model_accuracy(train_model):
+    logging.info("モデルの精度を確認します")
     """モデルの精度を検証"""
     model, X_test, y_test = train_model
 
@@ -122,6 +129,7 @@ def test_model_accuracy(train_model):
 
 
 def test_model_inference_time(train_model):
+    logging.info("モデルの推論時間を確認します")
     """モデルの推論時間を検証"""
     model, X_test, _ = train_model
 
@@ -137,6 +145,7 @@ def test_model_inference_time(train_model):
 
 
 def test_model_reproducibility(sample_data, preprocessor):
+    logging.info("モデルの再現性を確認します")
     """モデルの再現性を検証"""
     # データの分割
     X = sample_data.drop("Survived", axis=1)

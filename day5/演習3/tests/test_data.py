@@ -1,10 +1,12 @@
+import logging
 import os
-import pytest
-import pandas as pd
-import numpy as np
-import great_expectations as gx
-from sklearn.datasets import fetch_openml
 import warnings
+
+import great_expectations as gx
+import numpy as np
+import pandas as pd
+import pytest
+from sklearn.datasets import fetch_openml
 
 # 警告を抑制
 warnings.filterwarnings("ignore")
@@ -15,17 +17,20 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), "../data/Titanic.csv")
 
 @pytest.fixture
 def sample_data():
+    logging.info("サンプルデータを読み込みます")
     """Titanicテスト用データセットを読み込む"""
     return pd.read_csv(DATA_PATH)
 
 
 def test_data_exists(sample_data):
+    logging.info("データの存在を確認します")
     """データが存在することを確認"""
     assert not sample_data.empty, "データセットが空です"
     assert len(sample_data) > 0, "データセットにレコードがありません"
 
 
 def test_data_columns(sample_data):
+    logging.info("データのカラムを確認します")
     """必要なカラムが存在することを確認"""
     expected_columns = [
         "Pclass",
@@ -44,6 +49,7 @@ def test_data_columns(sample_data):
 
 
 def test_data_types(sample_data):
+    logging.info("データの型を確認します")
     """データ型の検証"""
     # 数値型カラム
     numeric_columns = ["Pclass", "Age", "SibSp", "Parch", "Fare"]
@@ -67,6 +73,7 @@ def test_data_types(sample_data):
 
 
 def test_missing_values_acceptable(sample_data):
+    logging.info("欠損値の許容範囲を確認します")
     """欠損値の許容範囲を確認"""
     # 完全に欠損するのではなく、許容範囲内の欠損を確認
     for col in sample_data.columns:
@@ -77,6 +84,7 @@ def test_missing_values_acceptable(sample_data):
 
 
 def test_value_ranges(sample_data):
+    logging.info("値の範囲を確認します")
     """値の範囲を検証"""
     context = gx.get_context()
     data_source = context.data_sources.add_pandas("pandas")
